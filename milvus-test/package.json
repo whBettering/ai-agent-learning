@@ -1,0 +1,17 @@
+{
+  "name": "milvus-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@langchain/openai": "^1.5.3",
+    "@zilliz/milvus2-sdk-node": "^3.0.3",
+    "dotenv": "^17.4.2"
+  }
+}
