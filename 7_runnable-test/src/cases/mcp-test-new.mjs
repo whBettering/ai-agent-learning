@@ -159,6 +159,45 @@ async function runAgentWithTools(query, maxIterations = 30) {
     return state.messages[state.messages.length - 1].content;
 }
 
-await runAgentWithTools("北京南站附近的酒店，最近的 3 个酒店，拿到酒店图片，打开浏览器，展示每个酒店的图片，每个 tab 一个 url 展示，并且在把那个页面标题改为酒店名");
+await runAgentWithTools("杭州滨江江汉路地铁站附近的高口碑饭店，最近的10个饭店，帮我列出饭店名称、评分、距离、价格区间、营业时间、电话、地址，按评分从高到低排序。");
 
 // await mcpClient.close();
+
+// ====================================================================
+// 📝 代码问答笔记
+// ====================================================================
+//
+// Q1: tools.find(t => t.name === toolCall.name) 的作用是什么？
+// A: 从已注册工具列表中匹配 LLM 想调用的工具。这是防御性检查——
+//    LLM 可能幻觉出错误的工具名，find 不到就 continue 跳过，防止崩溃。
+//    更好做法是返回错误消息让 LLM 调整策略。
+//
+// Q2: response 什么情况下有 tool_calls？
+// A: LLM 判断需要外部数据或操作时（查天气、搜酒店、打开浏览器）→ 有。
+//    LLM 认为能直接回答时（闲聊、知识问答、总结翻译）→ 没有。
+//    bindTools 只是告诉 LLM"这些工具可用"，用不用由 LLM 自己决定。
+
+// Q4: RunnablePassthrough.assign({ toolMessages: toolExecutor }) 的作用？
+// A: 在 state 上新增 toolMessages 属性（不覆盖原有属性），
+//    值由 toolExecutor 惰性求值得出。是"保留原属性 + 追加新属性"的机制。
+//
+// Q5: agentStepChain 什么时候结束？终止条件是什么？
+// A: agentStepChain 本身只是一轮迭代，永远会完整执行完。
+//    真正的终止在 runAgentWithTools 的 for 循环中：
+//    ① state.done === true（LLM 不再调工具）→ 正常返回
+//    ② i >= maxIterations（达到 30 轮上限）→ 强制返回最后一条消息
+//
+// Q6: 为什么要把 response 加入 messages？
+// A: LLM 无状态，每轮需完整上下文。不加的话 LLM 看不到自己上轮的决策。
+//    无 tool_calls：保存最终回答供输出。有 tool_calls：形成完整推理链，
+//    下一轮 LLM 知道"我调了工具，结果如下"。
+//
+// Q7: final 和 messages 中的内容是什么关系？
+// A: response 本身就是一个 AIMessage 对象。final = response.content，
+//    就是 messages 最后一条消息的文本内容。分开存只是方便直接返回。
+//
+// Q8: 如果 MCP 提供的工具是 ABC，但用户请求需要工具 D，怎么办？
+// A: tools.find(t => t.name === "D") → 返回 undefined → continue 跳过。
+//    LLM 可能反复尝试直到 maxIterations 耗尽。更好做法是返回错误消息
+//    告诉 LLM "D 不存在，可用工具有 A, B, C"，让 LLM 调整策略或组合使用。
+// ====================================================================

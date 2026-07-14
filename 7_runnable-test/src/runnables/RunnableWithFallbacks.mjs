@@ -12,8 +12,8 @@ const premiumTranslator = RunnableLambda.from(async (text) => {
 const standardTranslator = RunnableLambda.from(async (text) => {
   console.log("[Standard] 尝试翻译...");
   // 模拟标准服务也挂了
-  return "xxx";
-  // throw new Error("Standard 服务限流");
+  // return "xxx";
+  throw new Error("Standard 服务限流");
 });
 
 const localTranslator = RunnableLambda.from(async (text) => {

@@ -71,9 +71,9 @@ const milvusSearch = new RunnableLambda({
 
 // PromptTemplate：负责把 context / question 拼成最终 prompt
 const promptTemplate = PromptTemplate.fromTemplate(
-  `你是一个专业的《天龙八部》小说助手。基于小说内容回答问题，用准确、详细的语言。
+  `你是一个专业的《活着》小说助手。基于小说内容回答问题，用准确、详细的语言。
 
-请根据以下《天龙八部》小说片段内容回答问题：
+请根据以下《活着》小说片段内容回答问题：
 {context}
 
 用户问题: {question}
@@ -148,7 +148,7 @@ const ragChain = RunnableSequence.from([
 
       if (!hasContext) {
         const fallback =
-          "抱歉，我没有找到相关的《天龙八部》内容。请尝试换一个问题。";
+          "抱歉，我没有找到相关的《活着》内容。请尝试换一个问题。";
         console.log(fallback);
         return { question, context: "", answer: fallback, noContext: true };
       }
@@ -184,7 +184,7 @@ async function main() {
     await initMilvusCollection();
 
     const input = {
-      question: "鸠摩智会什么武功？",
+      question: "《活着》小说中，福贵在经历了家破人亡的悲剧后，最终是如何面对生活的？他对生命和命运有何感悟？",
       k: 5,
     };
 
